@@ -1,4 +1,5 @@
 const mysql = require('mysql2'); // Importamos el paquete mysql2 para conectarnos a la base de datos MySQL
+//Andres Orozco
 
 const connection = mysql.createConnection({ // Creamos una conexión a la base de datos
   host: 'localhost', //Docker servicer name, le docker es un contenedor
