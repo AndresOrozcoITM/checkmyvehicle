@@ -6,7 +6,8 @@ function App() {
     <div>
       <h1>CheckMyVehicle App</h1>
       <VehicleList />
-      <MapView mid="123456789" />
+      <MapView mid="123456789" /> // Muestra la lista de vehículos y el mapa
+      {/* Puedes pasar un MID específico al componente MapView */}
     </div>
   );
 }
