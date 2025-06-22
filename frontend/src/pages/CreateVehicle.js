@@ -1,23 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import VehicleForm from '../components/VehicleForm'; // <-- Importamos el nuevo componente
 
 const CreateVehicle = () => {
-    const [formData, setFormData] = useState({
-        plate: '',
-        brand: '',
-        line: '',
-        model: ''
-    });
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({ ...prevState, [name]: value }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // La lógica de la API permanece aquí, en el componente de "página"
+    const handleCreateVehicle = async (formData) => {
         try {
             await api.post('/vehicles', formData);
             alert('Vehículo creado exitosamente.');
@@ -28,31 +18,20 @@ const CreateVehicle = () => {
         }
     };
 
+    const handleCancel = () => {
+        navigate('/vehicles');
+    };
+
+    // La UI del formulario se delega al componente VehicleForm
     return (
         <div>
             <h2>Creación de nuevo vehículo</h2>
-            <form onSubmit={handleSubmit} className="form-container">
-                <div className="form-group">
-                    <label>Placa</label>
-                    <input type="text" name="plate" value={formData.plate} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>Marca</label>
-                    <input type="text" name="brand" value={formData.brand} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>Línea</label>
-                    <input type="text" name="line" value={formData.line} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label>Modelo</label>
-                    <input type="text" name="model" value={formData.model} onChange={handleChange} required />
-                </div>
-                <div className="form-actions">
-                    <button type="submit" className="btn-primary">Guardar</button>
-                    <button type="button" onClick={() => navigate('/vehicles')} className="btn-secondary">Cancelar</button>
-                </div>
-            </form>
+            <VehicleForm 
+                onSubmit={handleCreateVehicle}
+                onCancel={handleCancel}
+                initialData={{ plate: '', brand: '', line: '', model: '' }} // Datos iniciales vacíos
+                submitButtonText="Guardar"
+            />
         </div>
     );
 };

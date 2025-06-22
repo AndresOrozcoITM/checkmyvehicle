@@ -1,7 +1,7 @@
 const soap = require('soap');
 require('dotenv').config();
 
-const url = 'https://b2b.sonartelematics.com/Service.asmx?WSDL';
+const url = 'https://b2b.sonartelematics.com/Service.asmx';
 
 const auth = {
     User: process.env.SOAP_USER,
@@ -18,7 +18,6 @@ const getVehiclesFromProvider = async () => {
 
         const result = await client.GET_MobileListAsync({ ...args });
         
-        // La respuesta SOAP puede ser compleja. Navegamos hasta la lista.
         const vehicleList = result[0]?.GET_MobileListResult?.ListMobile?.Mobile;
         
         if (!vehicleList) {
@@ -26,7 +25,6 @@ const getVehiclesFromProvider = async () => {
             return [];
         }
 
-        // Si solo hay un vehículo, el servicio lo devuelve como objeto, no como array.
         const vehicles = Array.isArray(vehicleList) ? vehicleList : [vehicleList];
         
         return vehicles.map(v => ({
