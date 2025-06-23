@@ -44,20 +44,46 @@ const syncVehicles = async (req, res) => {
     }
 };
 
+// const createVehicle = async (req, res) => {
+//     try {
+//         const { plate, brand, line, model } = req.body;
+//         // Asignamos un mId 'local' para poder usarlo, ya que no viene del proveedor
+//         const mid = `local-${plate}-${Date.now()}`;
+//         const conn = await pool.getConnection();
+//         const [result] = await conn.query(
+//             'INSERT INTO vehicles (plate, brand, line, model, mid) VALUES (?, ?, ?, ?, ?)',
+//             [plate, brand, line, model, mid]
+//         );
+//         conn.release();
+//         res.status(201).json({ id: result.insertId, ...req.body });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Failed to create vehicle.' });
+//     }
+// };
+
 const createVehicle = async (req, res) => {
     try {
+        // 1. ¿Llegan los datos correctamente?
         const { plate, brand, line, model } = req.body;
-        // Asignamos un mId 'local' para poder usarlo, ya que no viene del proveedor
-        const mid = `local-${plate}-${Date.now()}`;
+        console.log('Recibido para crear:', req.body);
+
+        // 2. ¿El mId se genera bien?
+        const mid = `local-${plate}-${Date.now()}`;        
         const conn = await pool.getConnection();
+
+        // 3. ¿La consulta SQL es correcta?
         const [result] = await conn.query(
             'INSERT INTO vehicles (plate, brand, line, model, mid) VALUES (?, ?, ?, ?, ?)',
             [plate, brand, line, model, mid]
         );
+        
         conn.release();
         res.status(201).json({ id: result.insertId, ...req.body });
+
     } catch (error) {
-        console.error(error);
+        // 4. ¿Qué error se está capturando?
+        console.error('ERROR AL CREAR VEHÍCULO:', error);
         res.status(500).json({ error: 'Failed to create vehicle.' });
     }
 };
