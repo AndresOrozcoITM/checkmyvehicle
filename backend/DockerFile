@@ -1,19 +1,23 @@
-# Stage 1: Install dependencies
-FROM node:18-alpine AS deps
+FROM node:18-alpine
+
+# Instala 'netcat' que es parte de busybox-extras en Alpine
+RUN apk add --no-cache busybox-extras
+
 WORKDIR /app
-COPY package.json ./
+
+COPY package.json package-lock.json* ./
 RUN npm install
 
-# Stage 2: Build the application
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copia el resto del código
 COPY . .
 
-# Stage 3: Run the application
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app ./
+# Copia el script de espera y dale permisos de ejecución
+COPY wait-for-db.sh ./
+RUN chmod +x ./wait-for-db.sh
 
+# El puerto que EXPONE la aplicación Node.js
 EXPOSE 5000
-CMD ["npm", "start"]
+
+# Usa el script de espera para iniciar.
+# Pasa la IP de la BD y el comando para iniciar Node.
+CMD ["./wait-for-db.sh", "127.0.0.1", "node", "src/server.js"]

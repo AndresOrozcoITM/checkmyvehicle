@@ -20,13 +20,12 @@ services:
       dockerfile: Dockerfile
     container_name: checkmyvehicle_backend
     restart: unless-stopped
-    depends_on:
-      - db
-    # ports:
-      # - '5000:5000'
-    network_mode: "host"
+    ports:
+      - '5000:5000'
     env_file:
       - ./backend/.env
+    depends_on: # <-- ESTO ES CLAVE PARA LA COMUNICACIÓN INTERNA
+      - db
 
   frontend:
     build:
@@ -34,10 +33,10 @@ services:
       dockerfile: Dockerfile
     container_name: checkmyvehicle_frontend
     restart: unless-stopped
-    depends_on:
-      - backend
     ports:
       - '3000:80'
+    depends_on:
+      - backend
 
 volumes:
   db_data:
