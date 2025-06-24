@@ -12,34 +12,44 @@ const syncVehicles = async (req, res) => {
         let syncedCount = 0;
 
         for (const vehicle of vehiclesFromProvider) {
-            // Desestructuramos para limpiar los datos
             const { plate, description, mid } = vehicle;
-            const [brand, line, model] = description.split(' ').length >= 3 
-                ? [description.split(' ')[0], description.split(' ')[1], description.split(' ')[2]]
-                : [description, '', ''];
 
-            const [rows] = await conn.query('SELECT id FROM vehicles WHERE mid = ?', [mid]);
-            
-            if (rows.length === 0) {
-                // Si no existe, lo insertamos
-                await conn.query(
-                    'INSERT INTO vehicles (plate, brand, line, model, mid) VALUES (?, ?, ?, ?, ?)',
-                    [plate, brand, line, model, mid]
-                );
-                syncedCount++;
+            // --- INICIO DE LA LÓGICA DE PARSEO MEJORADA ---
+            const parts = description.split(' ');
+            let brand = '';
+            let line = '';
+            let model = ''; // Por defecto, vacío
+
+            // Busca una parte que parezca un año (4 dígitos) para asignarla como modelo
+            const modelIndex = parts.findIndex(part => /^\d{4}$/.test(part));
+
+            if (modelIndex > -1) {
+                // Si encontramos un año, lo asignamos como modelo
+                model = parts[modelIndex];
+                const brandAndLineParts = parts.slice(0, modelIndex);
+                brand = brandAndLineParts[0] || '';
+                line = brandAndLineParts.slice(1).join(' ');
             } else {
-                // Opcional: Si ya existe, podríamos actualizarlo
-                await conn.query(
-                    'UPDATE vehicles SET plate = ?, brand = ?, line = ?, model = ? WHERE mid = ?',
-                    [plate, brand, line, model, mid]
-                );
+                // Si no hay año, asumimos que todo es marca y línea
+                brand = parts[0] || '';
+                line = parts.slice(1).join(' ');
             }
+            // --- FIN DE LA LÓGICA DE PARSEO MEJORADA ---
+
+
+            // Usamos REPLACE INTO que es un atajo de MySQL para INSERT o UPDATE.
+            // Si la placa ya existe, la actualiza. Si no, la inserta.
+            await conn.query(
+                'REPLACE INTO vehicles (plate, brand, line, model, mid) VALUES (?, ?, ?, ?, ?)',
+                [plate, brand, line, model, mid]
+            );
+            syncedCount++;
         }
 
         conn.release();
-        res.status(200).json({ message: `Sync completed. ${syncedCount} new vehicles added.` });
+        res.status(200).json({ message: `Sync completed. ${syncedCount} vehicles processed.` });
     } catch (error) {
-        console.error(error);
+        console.error('ERROR DURANTE LA SINCRONIZACIÓN:', error); // Mensaje de error más claro
         res.status(500).json({ error: 'Failed to sync vehicles.' });
     }
 };

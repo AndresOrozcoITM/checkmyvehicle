@@ -9,5 +9,4 @@ COPY . .
 
 EXPOSE 5000
 
-# El CMD vuelve a ser el original y simple
 CMD ["node", "src/server.js"]
