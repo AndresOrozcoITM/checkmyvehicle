@@ -4,7 +4,7 @@
 
 ## ✨ Características Principales
 
--   **Integración SOAP:** Consume un WebService externo para: #Aún intentando modificar esta parte ya que no me esta haciendo el consumo de la API
+-   **Integración SOAP:** Consume un WebService externo para: //Aún intentando modificar esta parte ya que no me esta haciendo el consumo de la API
     -   Sincronizar la flota de vehículos desde el proveedor.
     -   Consultar la última ubicación conocida de un vehículo bajo demanda.
 -   **Gestión de Vehículos:**
