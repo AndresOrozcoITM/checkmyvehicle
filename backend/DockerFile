@@ -1,23 +1,13 @@
 FROM node:18-alpine
 
-# Instala 'netcat' que es parte de busybox-extras en Alpine
-RUN apk add --no-cache busybox-extras
-
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
 RUN npm install
 
-# Copia el resto del código
 COPY . .
 
-# Copia el script de espera y dale permisos de ejecución
-COPY wait-for-db.sh ./
-RUN chmod +x ./wait-for-db.sh
-
-# El puerto que EXPONE la aplicación Node.js
 EXPOSE 5000
 
-# Usa el script de espera para iniciar.
-# Pasa la IP de la BD y el comando para iniciar Node.
-CMD ["./wait-for-db.sh", "127.0.0.1", "node", "src/server.js"]
+# El CMD vuelve a ser el original y simple
+CMD ["node", "src/server.js"]
